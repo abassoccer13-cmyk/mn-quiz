@@ -39,10 +39,13 @@ function parseConfig(){
     if(hash) q=hash;
     else{
       var m=search.match(/[?&]q=([^&]+)/);
-      if(m) q=m[1];
+      if(m) q=decodeURIComponent(m[1]);
     }
     if(!q) return null;
-    var json=decodeURIComponent(escape(atob(q)));
+    /* Decode URL-safe base64 (- → + , _ → /) and add padding */
+    var b64=q.replace(/-/g,'+').replace(/_/g,'/');
+    while(b64.length%4) b64+='=';
+    var json=decodeURIComponent(escape(atob(b64)));
     return JSON.parse(json);
   } catch(e){ return null; }
 }
